@@ -60,7 +60,7 @@ public class SlotsCommand extends ListenerAdapter {
                     if(emojiLineResult.get(0).getName().equalsIgnoreCase("kosenoBaguette")){
                         // JACKPOT
                         resultString = "**YOU WIN THE JACKPOT !!! " + s.getJackpot() + " ONICOINS !!!**";
-                        userService.updateBalance(user, s.getJackpot());
+                        userService.updateBalance(user, s.getJackpot() + (bet * 2));
                         slotsService.resetJackpot(s);
                     } else {
                         // WIN
