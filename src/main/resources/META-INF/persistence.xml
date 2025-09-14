@@ -4,8 +4,9 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
              version="3.1">
 <persistence-unit name="OnibiExchangePU">
-  <class>com.onibiexchange.model.User</class>
-  <class>com.onibiexchange.model.RandomEvent</class>
+  <class>com.onibiexchange.models.User</class>
+  <class>com.onibiexchange.models.RandomEvent</class>
+  <class>com.onibiexchange.models.Slots</class>
   <properties>
     <!-- Base PostgreSQL -->
     <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>

@@ -1,6 +1,8 @@
 package com.onibiexchange.commands;
 
+import com.onibiexchange.models.Slots;
 import com.onibiexchange.models.User;
+import com.onibiexchange.services.SlotsService;
 import com.onibiexchange.services.UserService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 public class SlotsCommand extends ListenerAdapter {
 
     private final UserService userService = new UserService();
+    private final SlotsService slotsService = new SlotsService();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -37,7 +40,8 @@ public class SlotsCommand extends ListenerAdapter {
                 List<Emoji> slots = Arrays.asList(Emoji.fromUnicode("\uD83C\uDF47"),
                         Emoji.fromUnicode("\uD83C\uDF4A"),
                         Emoji.fromUnicode("\uD83C\uDF4B"),
-                        Emoji.fromUnicode("\uD83C\uDF4C"));
+                        Emoji.fromUnicode("\uD83C\uDF4C"),
+                        Emoji.fromCustom("kosenoBaguette", Long.parseLong("1201881653564149812"), false));
 
                 Random random = new Random();
                 Map<Integer, List<Emoji>> slotsResult = new HashMap<Integer, List<Emoji>>();
@@ -50,20 +54,31 @@ public class SlotsCommand extends ListenerAdapter {
 
                 // Update user balance
                 String resultString = "";
+                Slots s = slotsService.getSlotsValues();
+                int currentJackpot = s.getJackpot();
                 if(emojiLineResult.stream().map(Emoji::getName).distinct().count() == 1){
-                    // WIN
-                    userService.updateBalance(user, bet*2);
-                    resultString = "YOU WIN "+bet*2+" !!!";
+                    if(emojiLineResult.get(0).getName().equalsIgnoreCase("kosenoBaguette")){
+                        // JACKPOT
+                        resultString = "**YOU WIN THE JACKPOT !!! " + s.getJackpot() + " ONICOINS !!!**";
+                        userService.updateBalance(user, s.getJackpot());
+                        slotsService.resetJackpot(s);
+                    } else {
+                        // WIN
+                        userService.updateBalance(user, bet * 2);
+                        resultString = "**YOU WIN " + bet * 2 + " !!!**";
+                    }
                 } else {
                     // LOSE
                     userService.updateBalance(user, Math.negateExact(bet));
-                    resultString = "YOU LOSE...";
+                    resultString = "**YOU LOSE...**";
+                    slotsService.updateJackpot(s, bet);
                 }
 
                 // Generate Message
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setTitle("GAMBLING");
                 eb.setAuthor(user.getUsername(), null, event.getUser().getAvatarUrl());
+                eb.setDescription("JACKPOT : "+currentJackpot+" ONICOINS");
 
                 StringBuilder reply = new StringBuilder();
                 reply.append("**-------------------**").append('\n');
