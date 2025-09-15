@@ -22,6 +22,10 @@ public class UserService {
         return user;
     }
 
+    public void save(User user){
+        userRepository.save(user);
+    }
+
     public int getBalance(String discordId, String username) {
         User user = getOrCreateUser(discordId, username);
         return user.getBalance();
@@ -33,7 +37,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void updateBalance(User user, int amount, int cooldown) {
+    public void updateBalanceAndCooldown(User user, int amount, int cooldown) {
         user.setBalance(user.getBalance() + amount);
         user.setLastWork(LocalDateTime.now().plusMinutes((long) cooldown));
 
