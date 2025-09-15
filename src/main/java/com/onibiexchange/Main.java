@@ -1,9 +1,6 @@
 package com.onibiexchange;
 
-import com.onibiexchange.commands.BalanceCommand;
-import com.onibiexchange.commands.LeaderboardCommand;
-import com.onibiexchange.commands.SlotsCommand;
-import com.onibiexchange.commands.WorkCommand;
+import com.onibiexchange.commands.*;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -31,12 +28,13 @@ public class Main {
             }
 
             JDABuilder.createDefault(args[1])
-                    .addEventListeners(new BalanceCommand(), new WorkCommand(), new LeaderboardCommand(), new SlotsCommand())
+                    .addEventListeners(new ProfileCommand(), new WorkCommand(), new LeaderboardCommand(), new SlotsCommand())
                     .setActivity(Activity.playing("OnibiExchange"))
                     .build()
                     .updateCommands()
                     .addCommands(
-                            Commands.slash("balance", "Show your Onicoin balance"),
+                            //Commands.slash("balance", "Show your Onicoin balance"),
+                            Commands.slash("profile", "Show your OnibiExchange profile"),
                             Commands.slash("work", "Earn Onicoins with cooldown"),
                             Commands.slash("leaderboard", "Show the leaderboard of the server"),
                             Commands.slash("slots", "GAMBLING !!!")
