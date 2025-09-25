@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,11 +14,8 @@ import java.util.List;
 @Component
 public class LeaderboardCommand extends ListenerAdapter {
 
-    private final UserServiceImpl userService;
-
-    public LeaderboardCommand(UserServiceImpl userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserServiceImpl userService;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {

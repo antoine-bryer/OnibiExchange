@@ -4,6 +4,7 @@ import com.onibiexchange.model.RandomEvent;
 import com.onibiexchange.repository.RandomEventRepository;
 import com.onibiexchange.service.IRandomEventService;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -13,11 +14,9 @@ import java.util.Random;
 public class RandomEventServiceImpl implements IRandomEventService {
 
     private final Random random = new Random();
-    private final RandomEventRepository randomEventRepository;
 
-    public RandomEventServiceImpl(RandomEventRepository randomEventRepository) {
-        this.randomEventRepository = randomEventRepository;
-    }
+    @Autowired
+    private RandomEventRepository randomEventRepository;
 
     @Override
     public RandomEvent getRandomEvent() {
