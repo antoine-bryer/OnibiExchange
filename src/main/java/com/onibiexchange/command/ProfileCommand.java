@@ -1,18 +1,24 @@
-package com.onibiexchange.commands;
+package com.onibiexchange.command;
 
-import com.onibiexchange.models.User;
-import com.onibiexchange.services.LevelService;
-import com.onibiexchange.services.UserService;
+import com.onibiexchange.model.User;
+import com.onibiexchange.service.impl.LevelServiceImpl;
+import com.onibiexchange.service.impl.UserServiceImpl;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 
+@Component
 public class ProfileCommand extends ListenerAdapter {
 
-    private final UserService userService = new UserService();
-    private final LevelService levelService = new LevelService();
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private LevelServiceImpl levelService;
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {

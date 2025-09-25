@@ -1,21 +1,27 @@
-package com.onibiexchange.commands;
+package com.onibiexchange.command;
 
-import com.onibiexchange.models.Slots;
-import com.onibiexchange.models.User;
-import com.onibiexchange.services.SlotsService;
-import com.onibiexchange.services.UserService;
+import com.onibiexchange.model.Slots;
+import com.onibiexchange.model.User;
+import com.onibiexchange.service.impl.SlotsServiceImpl;
+import com.onibiexchange.service.impl.UserServiceImpl;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class SlotsCommand extends ListenerAdapter {
 
-    private final UserService userService = new UserService();
-    private final SlotsService slotsService = new SlotsService();
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private SlotsServiceImpl slotsService;
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {

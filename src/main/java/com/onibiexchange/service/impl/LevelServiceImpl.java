@@ -1,9 +1,15 @@
-package com.onibiexchange.services;
+package com.onibiexchange.service.impl;
 
-import com.onibiexchange.models.User;
+import com.onibiexchange.model.User;
+import com.onibiexchange.service.ILevelService;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
-public class LevelService {
+@Service
+@Transactional
+public class LevelServiceImpl implements ILevelService {
 
+    @Override
     public void addXp(User user, int xp){
         user.setXp(user.getXp() + xp);
 
@@ -14,6 +20,7 @@ public class LevelService {
         }
     }
 
+    @Override
     public int xpToNextLevel(int level){
         return (level * 100) + (level * level * 20);
     }

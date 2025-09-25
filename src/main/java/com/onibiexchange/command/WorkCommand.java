@@ -1,24 +1,32 @@
-package com.onibiexchange.commands;
+package com.onibiexchange.command;
 
-import com.onibiexchange.models.RandomEvent;
-import com.onibiexchange.models.User;
-import com.onibiexchange.services.LevelService;
-import com.onibiexchange.services.RandomEventService;
-import com.onibiexchange.services.UserService;
+import com.onibiexchange.model.RandomEvent;
+import com.onibiexchange.model.User;
+import com.onibiexchange.service.impl.LevelServiceImpl;
+import com.onibiexchange.service.impl.RandomEventServiceImpl;
+import com.onibiexchange.service.impl.UserServiceImpl;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
+@Component
 public class WorkCommand extends ListenerAdapter {
 
-    private final UserService userService = new UserService();
-    private final RandomEventService randomEventService = new RandomEventService();
-    private final LevelService levelService = new LevelService();
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private RandomEventServiceImpl randomEventService;
+
+    @Autowired
+    private LevelServiceImpl levelService;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {

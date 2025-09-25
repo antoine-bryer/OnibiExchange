@@ -1,15 +1,33 @@
 package com.onibiexchange;
 
-import com.onibiexchange.commands.*;
+import com.onibiexchange.command.*;
+import com.onibiexchange.service.impl.UserServiceImpl;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.apache.commons.cli.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+@SpringBootApplication
+//@EntityScan(basePackages = "com.onibiexchange.model")
+//@ComponentScan(basePackages = {"com.onibiexchange.service.impl", "com.onibiexchange.command"})
+//@EnableJpaRepositories(basePackages = "com.onibiexchange.repository")
 public class Main {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
+        ApplicationContext context = SpringApplication.run(Main.class, args);
         Options options = new Options();
         options.addOption(new Option("t", "token", true, "Provide the token during startup."));
 
@@ -27,8 +45,13 @@ public class Main {
                 System.exit(0);
             }
 
-            JDABuilder.createDefault(args[1])
-                    .addEventListeners(new ProfileCommand(), new WorkCommand(), new LeaderboardCommand(), new SlotsCommand())
+            LeaderboardCommand leaderboardCommand = context.getBean(LeaderboardCommand.class);
+            ProfileCommand profileCommand = context.getBean(ProfileCommand.class);
+            SlotsCommand slotsCommand = context.getBean(SlotsCommand.class);
+            WorkCommand workCommand = context.getBean(WorkCommand.class);
+
+            JDABuilder.createDefault(token)
+                    .addEventListeners(leaderboardCommand, profileCommand, slotsCommand, workCommand)
                     .setActivity(Activity.playing("OnibiExchange"))
                     .build()
                     .updateCommands()
@@ -39,9 +62,6 @@ public class Main {
                             Commands.slash("leaderboard", "Show the leaderboard of the server"),
                             Commands.slash("slots", "GAMBLING !!!")
                                     .addOption(OptionType.INTEGER, "bet", "The amount of Onicoins you want to bet", true)
-                            /*Commands.slash("transfer", "Send ghost coins to another player")
-                                    .addOption(net.dv8tion.jda.api.interactions.commands.OptionType.USER, "target", "The user to send to", true)
-                                    .addOption(net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER, "amount", "Amount of coins to send", true)*/
                     )
                     .queue();
         } catch (ParseException e) {
@@ -50,4 +70,5 @@ public class Main {
             System.exit(0);
         }
     }
+
 }

@@ -1,22 +1,14 @@
 package com.onibiexchange.repository;
 
-import com.onibiexchange.models.RandomEvent;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import com.onibiexchange.model.RandomEvent;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-public class RandomEventRepository {
-    private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("OnibiExchangePU");
+@Repository
+public interface RandomEventRepository extends JpaRepository<RandomEvent, Long> {
 
-    public RandomEvent pickRandomEvent() {
-        EntityManager em = emf.createEntityManager();
-        try {
-            return em.createQuery("SELECT e FROM RandomEvent e ORDER BY random() LIMIT 1", RandomEvent.class)
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
-        } finally {
-            em.close();
-        }
-    }
+    @Query("SELECT e FROM RandomEvent e ORDER BY random() LIMIT 1")
+    public RandomEvent pickRandomEvent();
+
 }

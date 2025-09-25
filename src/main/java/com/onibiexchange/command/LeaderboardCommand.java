@@ -1,17 +1,24 @@
-package com.onibiexchange.commands;
+package com.onibiexchange.command;
 
-import com.onibiexchange.models.User;
-import com.onibiexchange.services.UserService;
+import com.onibiexchange.model.User;
+import com.onibiexchange.service.impl.UserServiceImpl;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class LeaderboardCommand extends ListenerAdapter {
 
-    private final UserService userService = new UserService();
+    private final UserServiceImpl userService;
+
+    public LeaderboardCommand(UserServiceImpl userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {

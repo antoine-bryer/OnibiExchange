@@ -1,65 +1,79 @@
-package com.onibiexchange.services;
+package com.onibiexchange.service.impl;
 
-import com.onibiexchange.models.User;
+import com.onibiexchange.model.User;
 import com.onibiexchange.repository.UserRepository;
+import com.onibiexchange.service.IUserService;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
-public class UserService {
+@Service
+@Transactional
+public class UserServiceImpl implements IUserService {
 
-    private final UserRepository userRepository = new UserRepository();
     private final Random random = new Random();
+    private final UserRepository userRepository;
 
-    public User getOrCreateUser(String discordId, String username) {
-        User user = userRepository.findByDiscordId(discordId);
-        if (user == null) {
-            user = new User(discordId, username);
-            userRepository.save(user);
-        }
-        return user;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
+    @Override
+    @Transactional
+    public User getOrCreateUser(String id, String username) {
+        return userRepository.findByDiscordId(id)
+                .orElseGet(() -> userRepository.save(new User(id, username)));
+    }
+
+    @Override
     public void save(User user){
         userRepository.save(user);
     }
 
+    @Override
     public int getBalance(String discordId, String username) {
         User user = getOrCreateUser(discordId, username);
         return user.getBalance();
     }
 
+    @Override
     public void updateBalance(User user, int amount) {
         user.setBalance(user.getBalance() + amount);
-
         userRepository.save(user);
     }
 
+    @Override
     public void updateBalanceAndCooldown(User user, int amount, int cooldown) {
         user.setBalance(user.getBalance() + amount);
         user.setLastWork(LocalDateTime.now().plusMinutes((long) cooldown));
-
         userRepository.save(user);
     }
 
+    @Override
     public boolean hasEnoughBalance(String discordId, String username, int amount) {
         User user = getOrCreateUser(discordId, username);
         return user.getBalance() >= amount;
     }
 
+    @Override
     public boolean canWork(User user) {
         if (user.getLastWork() == null) return true;
         long minutesSince = ChronoUnit.SECONDS.between(LocalDateTime.now(), user.getLastWork());
         return minutesSince <= 0;
     }
 
+    @Override
     public long cooldownRemaining(User user) {
         if (user.getLastWork() == null) return 0;
         return ChronoUnit.SECONDS.between(LocalDateTime.now(), user.getLastWork());
     }
 
+    @Override
     public int work(User user, int minReward, int maxReward) {
         if (!canWork(user)) {
             throw new IllegalStateException("Cooldown active");
@@ -68,8 +82,8 @@ public class UserService {
         return minReward+random.nextInt(maxReward-minReward);
     }
 
-    public List<User> getLeaderboard(){
+    @Override
+    public List<User> getLeaderboard() {
         return userRepository.getLeaderboard();
     }
-
 }
