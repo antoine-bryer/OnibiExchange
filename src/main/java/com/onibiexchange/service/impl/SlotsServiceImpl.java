@@ -4,7 +4,6 @@ import com.onibiexchange.model.Slots;
 import com.onibiexchange.repository.SlotsRepository;
 import com.onibiexchange.service.ISlotsService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

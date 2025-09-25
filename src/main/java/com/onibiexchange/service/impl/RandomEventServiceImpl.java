@@ -4,7 +4,6 @@ import com.onibiexchange.model.RandomEvent;
 import com.onibiexchange.repository.RandomEventRepository;
 import com.onibiexchange.service.IRandomEventService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;

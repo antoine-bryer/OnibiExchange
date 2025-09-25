@@ -1,29 +1,19 @@
 package com.onibiexchange;
 
-import com.onibiexchange.command.*;
-import com.onibiexchange.service.impl.UserServiceImpl;
-import net.dv8tion.jda.api.JDA;
+import com.onibiexchange.command.LeaderboardCommand;
+import com.onibiexchange.command.ProfileCommand;
+import com.onibiexchange.command.SlotsCommand;
+import com.onibiexchange.command.WorkCommand;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.apache.commons.cli.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @SpringBootApplication
-//@EntityScan(basePackages = "com.onibiexchange.model")
-//@ComponentScan(basePackages = {"com.onibiexchange.service.impl", "com.onibiexchange.command"})
-//@EnableJpaRepositories(basePackages = "com.onibiexchange.repository")
 public class Main {
 
     public static void main(String[] args) {
