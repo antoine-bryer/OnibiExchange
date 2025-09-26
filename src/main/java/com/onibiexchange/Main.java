@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import org.apache.commons.cli.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -18,22 +17,16 @@ public class Main {
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(Main.class, args);
-        Options options = new Options();
-        options.addOption(new Option("t", "token", true, "Provide the token during startup."));
-
-        CommandLineParser parser = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
 
         try {
-            CommandLine cmd = parser.parse(options, args);
+            String token = System.getenv("DISCORD_TOKEN");
 
-            // Check if the token argument was provided and has a value. If it doesn't, return null.
-            String token = cmd.hasOption("token") ? cmd.getOptionValue("token") : null;
-            if (token == null) {
-                System.out.println("ERROR: No token provided, please provide a token using the -t or --token flag.");
-                formatter.printHelp("", options);
-                System.exit(0);
+            if (token == null || token.isEmpty()) {
+                System.err.println("❌ ERROR: DISCORD_TOKEN environment variable is not set.");
+                System.exit(1);
             }
+
+            System.out.println("✅ Starting OnibiExchange bot...");
 
             LeaderboardCommand leaderboardCommand = context.getBean(LeaderboardCommand.class);
             ProfileCommand profileCommand = context.getBean(ProfileCommand.class);
@@ -54,9 +47,8 @@ public class Main {
                                     .addOption(OptionType.INTEGER, "bet", "The amount of Onicoins you want to bet", true)
                     )
                     .queue();
-        } catch (ParseException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("", options);
             System.exit(0);
         }
     }
