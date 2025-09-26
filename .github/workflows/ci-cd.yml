@@ -64,5 +64,15 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           envs: DISCORD_TOKEN
           script: |
+            cd /home/ubuntu/onibiexchange/onibiexchange
+            git pull origin main
+
+            cd /home/ubuntu/onibiexchange
             export DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-            /home/ubuntu/onibiexchange/deploy.sh
+
+            docker compose down
+            docker compose pull
+            docker compose build
+            docker compose up -d --remove-orphans
+
+            docker system prune -f
