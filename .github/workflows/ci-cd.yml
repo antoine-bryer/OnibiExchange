@@ -65,7 +65,7 @@ jobs:
           envs: DISCORD_TOKEN
           script: |
             cd /home/ubuntu/onibiexchange/onibiexchange
-            git pull origin main
+            git pull origin master
 
             cd /home/ubuntu/onibiexchange
             export DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
