@@ -65,4 +65,4 @@ jobs:
           envs: DISCORD_TOKEN
           script: |
             export DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-            onibiexchange/deploy.sh
+            /onibiexchange/deploy.sh
