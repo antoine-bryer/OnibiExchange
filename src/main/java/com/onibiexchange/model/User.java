@@ -27,7 +27,8 @@ public class User implements Serializable {
     private String username;
 
     @Column(name = "balance", nullable = false)
-    private int balance = 0;
+    @NonNull
+    private Integer balance;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

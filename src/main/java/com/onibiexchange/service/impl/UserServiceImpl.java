@@ -25,7 +25,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public User getOrCreateUser(String id, String username) {
         return userRepository.findByDiscordId(id)
-                .orElseGet(() -> userRepository.save(new User(id, username)));
+                .orElseGet(() -> userRepository.save(new User(id, username, 100)));
     }
 
     @Override
