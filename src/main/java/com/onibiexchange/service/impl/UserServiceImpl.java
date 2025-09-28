@@ -4,7 +4,7 @@ import com.onibiexchange.model.User;
 import com.onibiexchange.repository.UserRepository;
 import com.onibiexchange.service.IUserService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,14 +12,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class UserServiceImpl implements IUserService {
 
     private final Random random = new Random();
-
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -48,7 +47,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void updateBalanceAndCooldown(User user, int amount, int cooldown) {
         user.setBalance(user.getBalance() + amount);
-        user.setLastWork(LocalDateTime.now().plusMinutes((long) cooldown));
+        user.setLastWork(LocalDateTime.now().plusMinutes(cooldown));
         userRepository.save(user);
     }
 

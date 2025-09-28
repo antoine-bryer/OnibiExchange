@@ -47,9 +47,8 @@ public class SlotsCommand extends ListenerAdapter {
                         Emoji.fromUnicode("\uD83C\uDF4C"),
                         Emoji.fromCustom("kosenoBaguette", Long.parseLong("1201881653564149812"), false));
 
-                Random random = new Random();
-                Map<Integer, List<Emoji>> slotsResult = new HashMap<Integer, List<Emoji>>();
-                List<Emoji> emojiLineResult = new ArrayList<Emoji>();
+                Map<Integer, List<Emoji>> slotsResult = new HashMap<>();
+                List<Emoji> emojiLineResult = new ArrayList<>();
                 for(int i = 0 ; i < 3 ; i++){
                     List<Emoji> emojiCol = slots.stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {Collections.shuffle(l); return l.subList(0, 3);}));
                     slotsResult.put(i, emojiCol);

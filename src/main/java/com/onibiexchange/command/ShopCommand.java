@@ -23,9 +23,10 @@ public class ShopCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         String command = event.getName();
 
-        switch (command) {
-            case "shop" -> handleShop(event);
-            case "buy" -> handleBuy(event);
+        if (command.equals("shop")) {
+            handleShop(event);
+        } else if (command.equals("buy")) {
+            handleBuy(event);
         }
     }
 

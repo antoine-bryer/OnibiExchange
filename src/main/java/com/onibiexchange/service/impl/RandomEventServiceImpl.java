@@ -4,27 +4,24 @@ import com.onibiexchange.model.RandomEvent;
 import com.onibiexchange.repository.RandomEventRepository;
 import com.onibiexchange.service.IRandomEventService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class RandomEventServiceImpl implements IRandomEventService {
 
+    private final RandomEventRepository randomEventRepository;
     private final Random random = new Random();
-
-    @Autowired
-    private RandomEventRepository randomEventRepository;
 
     @Override
     public RandomEvent getRandomEvent() {
         RandomEvent event = randomEventRepository.pickRandomEvent();
         if (event != null) {
            int rarity = event.getRarity();
-           Random random = new Random();
-
            if(random.nextInt(100) < rarity){
                return event;
            }

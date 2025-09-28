@@ -131,9 +131,7 @@ public class WorkCommand extends ListenerAdapter {
             }
 
             // Add xp and manage level up
-            int oldLevel = user.getLevel();
             levelService.addXp(user, xpGain);
-            int newLevel = user.getLevel();
 
             if(reward > 0) {
                 result.append("🔥 You worked hard and earned **").append(reward).append("** Onicoins !\n");

@@ -4,15 +4,15 @@ import com.onibiexchange.model.Slots;
 import com.onibiexchange.repository.SlotsRepository;
 import com.onibiexchange.service.ISlotsService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class SlotsServiceImpl implements ISlotsService {
 
-    @Autowired
-    private SlotsRepository slotsRepository;
+    private final SlotsRepository slotsRepository;
 
     @Override
     public Slots getSlotsValues(){

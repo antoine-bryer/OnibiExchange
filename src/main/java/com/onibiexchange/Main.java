@@ -8,9 +8,12 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootApplication
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(Main.class, args);
@@ -19,11 +22,11 @@ public class Main {
             String token = System.getenv("DISCORD_TOKEN");
 
             if (token == null || token.isEmpty()) {
-                System.err.println("❌ ERROR: DISCORD_TOKEN environment variable is not set.");
+                logger.error("❌ ERROR: DISCORD_TOKEN environment variable is not set.");
                 System.exit(1);
             }
 
-            System.out.println("✅ Starting OnibiExchange bot...");
+            logger.info("✅ Starting OnibiExchange bot...");
 
             LeaderboardCommand leaderboardCommand = context.getBean(LeaderboardCommand.class);
             ProfileCommand profileCommand = context.getBean(ProfileCommand.class);
@@ -50,7 +53,7 @@ public class Main {
                     )
                     .queue();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage(), e);
             System.exit(0);
         }
     }
