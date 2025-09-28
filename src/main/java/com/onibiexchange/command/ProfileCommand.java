@@ -3,22 +3,20 @@ package com.onibiexchange.command;
 import com.onibiexchange.model.User;
 import com.onibiexchange.service.impl.LevelServiceImpl;
 import com.onibiexchange.service.impl.UserServiceImpl;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
 
 @Component
+@RequiredArgsConstructor
 public class ProfileCommand extends ListenerAdapter {
 
-    @Autowired
-    private UserServiceImpl userService;
-
-    @Autowired
-    private LevelServiceImpl levelService;
+    private final UserServiceImpl userService;
+    private final LevelServiceImpl levelService;
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
