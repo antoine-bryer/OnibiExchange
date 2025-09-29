@@ -33,12 +33,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public int getBalance(String discordId, String username) {
-        User user = getOrCreateUser(discordId, username);
-        return user.getBalance();
-    }
-
-    @Override
     public void updateBalance(User user, int amount) {
         user.setBalance(user.getBalance() + amount);
         userRepository.save(user);
@@ -49,12 +43,6 @@ public class UserServiceImpl implements IUserService {
         user.setBalance(user.getBalance() + amount);
         user.setLastWork(LocalDateTime.now().plusMinutes(cooldown));
         userRepository.save(user);
-    }
-
-    @Override
-    public boolean hasEnoughBalance(String discordId, String username, int amount) {
-        User user = getOrCreateUser(discordId, username);
-        return user.getBalance() >= amount;
     }
 
     @Override

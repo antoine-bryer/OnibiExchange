@@ -1,7 +1,6 @@
 package com.onibiexchange.service.impl;
 
 import com.onibiexchange.model.*;
-import com.onibiexchange.model.ShopEffectType;
 import com.onibiexchange.repository.*;
 import com.onibiexchange.service.IItemEffectService;
 import lombok.RequiredArgsConstructor;
