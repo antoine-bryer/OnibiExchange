@@ -5,7 +5,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "shop_items")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ShopItem {
 
     @Id
@@ -19,4 +24,8 @@ public class ShopItem {
 
     @Column(nullable = false)
     private int price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "effect_type", nullable = false)
+    private ShopEffectType effectType;
 }

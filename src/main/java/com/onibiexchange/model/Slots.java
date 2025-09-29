@@ -8,6 +8,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "slots")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

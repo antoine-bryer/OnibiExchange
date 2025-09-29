@@ -34,9 +34,10 @@ public class Main {
             WorkCommand workCommand = context.getBean(WorkCommand.class);
             ShopCommand shopCommand = context.getBean(ShopCommand.class);
             InventoryCommand inventoryCommand = context.getBean(InventoryCommand.class);
+            UseCommand useCommand = context.getBean(UseCommand.class);
 
             JDABuilder.createDefault(token)
-                    .addEventListeners(leaderboardCommand, profileCommand, slotsCommand, workCommand, shopCommand, inventoryCommand)
+                    .addEventListeners(leaderboardCommand, profileCommand, slotsCommand, workCommand, shopCommand, inventoryCommand, useCommand)
                     .setActivity(Activity.playing("OnibiExchange"))
                     .build()
                     .updateCommands()
@@ -46,10 +47,11 @@ public class Main {
                             Commands.slash("leaderboard", "Show the leaderboard of the server"),
                             Commands.slash("slots", "GAMBLING !!!")
                                     .addOption(OptionType.INTEGER, "bet", "The amount of Onicoins you want to bet", true),
-                            Commands.slash("shop", "Show OnibiExchange shop"),
-                            Commands.slash("buy", "Buy an item from the shop")
-                                    .addOption(OptionType.INTEGER, "item", "Shop item ID", true),
-                            Commands.slash("inventory", "Show your owned items")
+                            Commands.slash("shop", "View or buy items from the shop")
+                                    .addOption(OptionType.STRING, "item", "The item you want to buy", false, true)
+                                    .addOption(OptionType.INTEGER, "quantity", "How many to buy", false),
+                            Commands.slash("inventory", "Show your owned items"),
+                            Commands.slash("use", "Use an item from your inventory")
                     )
                     .queue();
         } catch (Exception e) {

@@ -28,18 +28,18 @@ public class ShopItemServiceImpl implements IShopItemService {
     }
 
     @Override
-    public String buyItem(User user, Long itemId) {
+    public String buyItem(User user, Long itemId, int amount) {
         Optional<ShopItem> optItem = shopItemRepository.findById(itemId);
         if (optItem.isEmpty()) {
             return "❌ Item not found.";
         }
 
         ShopItem item = optItem.get();
-        if (user.getBalance() < item.getPrice()) {
+        if (user.getBalance() < (item.getPrice() * amount)) {
             return "💸 Not enough coins to buy **" + item.getName() + "**!";
         }
 
-        user.setBalance(user.getBalance() - item.getPrice());
+        user.setBalance(user.getBalance() - (item.getPrice() * amount));
         userRepository.save(user);
 
         // Inventory
@@ -47,12 +47,12 @@ public class ShopItemServiceImpl implements IShopItemService {
         UserItem inventoryItem;
         if (optInventory.isPresent()) {
             inventoryItem = optInventory.get();
-            inventoryItem.setQuantity(inventoryItem.getQuantity() + 1);
+            inventoryItem.setQuantity(inventoryItem.getQuantity() + amount);
         } else {
             inventoryItem = UserItem.builder()
                     .user(user)
                     .item(item)
-                    .quantity(1)
+                    .quantity(amount)
                     .build();
         }
         userItemRepository.save(inventoryItem);

@@ -6,6 +6,8 @@ import lombok.*;
 @Entity
 @Table(name = "random_event")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

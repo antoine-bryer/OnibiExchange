@@ -1,72 +1,106 @@
 package com.onibiexchange.command;
 
+import com.onibiexchange.model.ShopItem;
 import com.onibiexchange.model.User;
-import com.onibiexchange.service.impl.ShopItemServiceImpl;
+import com.onibiexchange.model.UserItem;
+import com.onibiexchange.repository.ShopItemRepository;
+import com.onibiexchange.repository.UserItemRepository;
 import com.onibiexchange.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class ShopCommand extends ListenerAdapter {
 
-    private final ShopItemServiceImpl shopService;
+    private final ShopItemRepository shopItemRepository;
+    private final UserItemRepository userItemRepository;
     private final UserServiceImpl userService;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        String command = event.getName();
+        if (!event.getName().equals("shop")) return;
 
-        if (command.equals("shop")) {
-            handleShop(event);
-        } else if (command.equals("buy")) {
-            handleBuy(event);
-        }
-    }
+        String discordId = event.getUser().getId();
+        String userName = event.getUser().getName();
+        User user = userService.getOrCreateUser(discordId, userName);
 
-    private void handleShop(SlashCommandInteractionEvent event) {
-        var items = shopService.listItems();
+        String itemName = event.getOption("item") != null ? event.getOption("item").getAsString() : null;
+        int quantity = event.getOption("quantity") != null ? event.getOption("quantity").getAsInt() : 1;
 
-        if (items.isEmpty()) {
-            event.reply("🛒 The shop is currently empty.").queue();
+        if (itemName == null) {
+            sendShopList(event);
             return;
         }
 
+        ShopItem shopItem = shopItemRepository.findAll().stream()
+                .filter(i -> i.getName().equalsIgnoreCase(itemName))
+                .findFirst()
+                .orElse(null);
+
+        if (shopItem == null) {
+            event.reply("❌ Item not found. Use `/shop` without arguments to view items.").setEphemeral(true).queue();
+            return;
+        }
+
+        int totalCost = shopItem.getPrice() * quantity;
+        if (user.getBalance() < totalCost) {
+            event.reply("❌ You don't have enough coins! Cost: " + totalCost + " | Your balance: " + user.getBalance())
+                    .setEphemeral(true).queue();
+            return;
+        }
+
+        user.setBalance(user.getBalance() - totalCost);
+        userService.save(user);
+
+        UserItem userItem = userItemRepository.findByUserAndItem(user, shopItem)
+                .orElse(UserItem.builder().user(user).item(shopItem).quantity(0).build());
+
+        userItem.setQuantity(userItem.getQuantity() + quantity);
+        userItemRepository.save(userItem);
+
+        event.reply("✅ Purchased **" + quantity + "x " + shopItem.getName() + "** for **" + totalCost + "** coins!")
+                .setEphemeral(true).queue();
+    }
+
+    private void sendShopList(SlashCommandInteractionEvent event) {
+        List<ShopItem> items = shopItemRepository.findAll();
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("🛒 OnibiExchange Shop")
+                .setDescription("Use `/shop item:<name> quantity:<amount>` to buy.")
                 .setColor(Color.ORANGE);
 
-        for (var item : items) {
+        for (ShopItem item : items) {
             embed.addField(
                     "[" + item.getId() + "] " + item.getName(),
-                    item.getDescription() + " — **" + item.getPrice() + "💰**",
+                    item.getDescription() + " — **" + item.getPrice() + " 💰**",
                     false
             );
         }
 
-        event.replyEmbeds(embed.build()).queue();
+        event.replyEmbeds(embed.build()).setEphemeral(false).queue();
     }
 
-    private void handleBuy(SlashCommandInteractionEvent event) {
-        long itemId = event.getOption("item") != null
-                ? event.getOption("item").getAsLong()
-                : -1;
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (!event.getName().equals("shop")) return;
 
-        if (itemId == -1) {
-            event.reply("❌ Please specify an item ID. Example: `/buy item:1`").queue();
-            return;
+        if (event.getFocusedOption().getName().equals("item")) {
+            List<Choice> choices = shopItemRepository.findAll().stream()
+                    .map(i -> new Choice(i.getName(), i.getName()))
+                    .toList();
+            event.replyChoices(choices).queue();
         }
-
-        User user = userService.getOrCreateUser(event.getUser().getId(), event.getUser().getName());
-        String result = shopService.buyItem(user, itemId);
-        event.reply(result).queue();
     }
 }
-
-

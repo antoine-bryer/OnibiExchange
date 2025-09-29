@@ -9,6 +9,6 @@ public interface IShopItemService {
 
     public List<ShopItem> listItems();
 
-    public String buyItem(User user, Long itemId);
+    public String buyItem(User user, Long itemId, int amount);
 
 }

@@ -2,6 +2,8 @@ package com.onibiexchange.command;
 
 import com.onibiexchange.model.RandomEvent;
 import com.onibiexchange.model.User;
+import com.onibiexchange.model.UserBuff;
+import com.onibiexchange.repository.UserBuffRepository;
 import com.onibiexchange.service.impl.LevelServiceImpl;
 import com.onibiexchange.service.impl.RandomEventServiceImpl;
 import com.onibiexchange.service.impl.UserServiceImpl;
@@ -14,6 +16,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Component
@@ -23,6 +26,7 @@ public class WorkCommand extends ListenerAdapter {
     private final UserServiceImpl userService;
     private final RandomEventServiceImpl randomEventService;
     private final LevelServiceImpl levelService;
+    private final UserBuffRepository userBuffRepository;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -103,6 +107,39 @@ public class WorkCommand extends ListenerAdapter {
             }
             reward = userService.work(user, minReward, maxReward);
             eb.addField("- Basic reward", "You earned **"+(reward != 0 ? reward+"** Onicoins !" : "NOTHING** !!!"), false);
+
+            // Items effects
+            java.util.List<UserBuff> buffs = userBuffRepository.findByUser(user);
+            boolean doubleApplied = false;
+            for (UserBuff buff : buffs) {
+                if (buff.getEffectType().equals("WORK_BOOST_20_PERCENT")) {
+                    if (buff.getExpirationDate() != null && buff.getExpirationDate().isAfter(LocalDateTime.now())) {
+                        reward = (int) Math.round(reward * 1.2);
+                        eb.addField("- Boost 20%", "Your reward has been increased by 20% !", false);
+                    } else {
+                        userBuffRepository.delete(buff);
+                    }
+                }
+                if (buff.getEffectType().equals("RANDOM_BONUS_ON_WORK") && buff.getRemainingUses() > 0) {
+                    if (random.nextInt(100) < 5) {
+                        int bonus = 100 + random.nextInt(401);
+                        reward += bonus;
+                        eb.addField("- Bonus aléatoire", "You have earned a bonus of "+bonus+" Onicoins !", false);
+                    }
+                    buff.setRemainingUses(buff.getRemainingUses() - 1);
+                    if (buff.getRemainingUses() <= 0) {
+                        userBuffRepository.delete(buff);
+                    } else {
+                        userBuffRepository.save(buff);
+                    }
+                }
+                if (!doubleApplied && buff.getEffectType().equals("DOUBLE_WORK_REWARD")) {
+                    reward *= 2;
+                    eb.addField("- Double Reward", "Your reward has been doubled !", false);
+                    userBuffRepository.delete(buff);
+                    doubleApplied = true;
+                }
+            }
 
             // Random Event
             RandomEvent randomEvent = randomEventService.getRandomEvent();
