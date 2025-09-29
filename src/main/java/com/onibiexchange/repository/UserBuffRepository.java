@@ -12,6 +12,6 @@ import java.util.List;
 public interface UserBuffRepository extends JpaRepository<UserBuff, Long> {
     List<UserBuff> findByUser(User user);
     List<UserBuff> findByUserAndEffectType(User user, String effectType);
-    public boolean existsByUserAndEffectType(User user, String effectType);
-    public List<UserBuff> findByUserAndExpirationDateBefore(User user, LocalDateTime dateTime);
+    boolean existsByUserAndEffectType(User user, String effectType);
+    List<UserBuff> findByUserAndExpirationDateBefore(User user, LocalDateTime dateTime);
 }

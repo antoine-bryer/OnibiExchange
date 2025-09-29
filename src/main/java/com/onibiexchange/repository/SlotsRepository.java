@@ -6,7 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SlotsRepository extends JpaRepository<Slots, Long> {
-
-    public Slots findFirstBy();
-
+    Slots findFirstBy();
 }

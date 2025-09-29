@@ -10,9 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
     Optional<User> findByDiscordId(String discordId);
-
     @Query("SELECT u FROM User u ORDER BY u.balance DESC LIMIT 10")
     List<User> getLeaderboard();
 

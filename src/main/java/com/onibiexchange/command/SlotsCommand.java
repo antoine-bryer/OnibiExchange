@@ -103,9 +103,9 @@ public class SlotsCommand extends ListenerAdapter {
                         line2.append("\u00A0\u00A0\u00A0").append("**<**");
                     }
                 }
-                reply.append(line1.toString()).append('\n');
-                reply.append(line2.toString()).append('\n');
-                reply.append(line3.toString()).append('\n');
+                reply.append(line1).append('\n');
+                reply.append(line2).append('\n');
+                reply.append(line3).append('\n');
                 reply.append("**-------------------**").append('\n');
                 reply.append(resultString);
 

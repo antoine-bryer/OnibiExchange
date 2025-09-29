@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +18,8 @@ import java.util.Random;
 public class ItemEffectServiceImpl implements IItemEffectService {
 
     private final UserRepository userRepository;
-    private final ShopItemRepository shopItemRepository;
     private final UserItemRepository userItemRepository;
     private final UserBuffRepository userBuffRepository;
-
-    private final Random rng = new Random();
 
     @Override
     public String useItem(Long userItemId, String discordId) {

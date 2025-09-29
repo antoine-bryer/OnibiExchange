@@ -57,9 +57,9 @@ public class UseCommand extends ListenerAdapter {
             event.deferEdit().queue();
 
             String value = event.getValues().get(0);
-            Long userItemId;
+            long userItemId;
             try {
-                userItemId = Long.valueOf(value);
+                userItemId = Long.parseLong(value);
             } catch (NumberFormatException e) {
                 event.reply("❌ Invalid selection.").setEphemeral(true).queue();
                 return;
