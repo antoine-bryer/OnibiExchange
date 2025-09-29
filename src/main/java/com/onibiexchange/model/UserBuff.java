@@ -23,12 +23,15 @@ public class UserBuff {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false)
+    @Column(name = "effect_type", nullable = false)
     private String effectType;
 
+    @Column(name = "remaining_uses")
     private int remainingUses;
 
+    @Column(name = "expiration_date")
     private LocalDateTime expirationDate;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
