@@ -71,7 +71,6 @@ public class UseCommand extends ListenerAdapter {
             event.getHook().editOriginal(result)
                     .setComponents()
                     .queue();
-
         }
     }
 }

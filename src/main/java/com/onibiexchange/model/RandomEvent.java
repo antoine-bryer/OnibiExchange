@@ -12,7 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RandomEvent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,5 +27,4 @@ public class RandomEvent {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-
 }

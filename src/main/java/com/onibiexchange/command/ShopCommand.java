@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -34,8 +35,8 @@ public class ShopCommand extends ListenerAdapter {
         String userName = event.getUser().getName();
         User user = userService.getOrCreateUser(discordId, userName);
 
-        String itemName = event.getOption("item") != null ? event.getOption("item").getAsString() : null;
-        int quantity = event.getOption("quantity") != null ? event.getOption("quantity").getAsInt() : 1;
+        String itemName = event.getOption("item") != null ? Objects.requireNonNull(event.getOption("item")).getAsString() : null;
+        int quantity = event.getOption("quantity") != null ? Objects.requireNonNull(event.getOption("quantity")).getAsInt() : 1;
 
         if (itemName == null) {
             sendShopList(event);

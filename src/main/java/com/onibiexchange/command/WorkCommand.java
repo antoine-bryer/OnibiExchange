@@ -16,7 +16,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -28,6 +30,8 @@ public class WorkCommand extends ListenerAdapter {
     private final LevelServiceImpl levelService;
     private final UserBuffRepository userBuffRepository;
 
+    private final Random random = new Random();
+
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equalsIgnoreCase("work")) {
@@ -37,12 +41,25 @@ public class WorkCommand extends ListenerAdapter {
             User user = userService.getOrCreateUser(discordId, username);
 
             if (userService.canWork(user)) {
-                event.reply("Choose your path")
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle("⚒️ **Choose Your Path, Onibi Worker!**");
+
+                StringBuilder description = new StringBuilder().append("Your spirit awakens... but how far will you push it?\n\n")
+                        .append("🪵 **Wandering Spirit** — Safe but humble gains\n")
+                        .append("🔥 **Fierce Flame** — Greater risk, greater reward\n")
+                        .append("👹 **Wrath of the Onibi** — Only the fearless dare enter...");
+                eb.setDescription(description.toString());
+
+                eb.setColor(Color.RED);
+                eb.setFooter("Make your choice wisely...", event.getUser().getAvatarUrl());
+
+                event.replyEmbeds(eb.build())
                         .addActionRow(
-                                Button.primary("easy", "Easy"),
-                                Button.secondary("medium", "Medium"),
-                                Button.danger("hard", "Hard")
-                        ).queue();
+                                Button.primary("easy", "🪵 Wandering Spirit"),
+                                Button.secondary("medium", "🔥 Fierce Flame"),
+                                Button.danger("hard", "👹 Wrath of the Onibi")
+                        )
+                        .queue();
             } else {
                 long remaining = userService.cooldownRemaining(user);
                 event.reply("⏳ You must wait " + remaining + " seconds before working again.")
@@ -61,133 +78,131 @@ public class WorkCommand extends ListenerAdapter {
 
         try {
             User user = userService.getOrCreateUser(discordId, username);
+            int[] workParams = getWorkParameters(event.getComponentId());
+            int reward = userService.work(user, workParams[1], workParams[2]); // min, max
+            int cooldown = workParams[0];
+            int xpGain = workParams[3];
 
-            int reward;
-            int cooldown = 0;
-            int minReward = 0;
-            int maxReward = 0;
-            int xpGain = 0;
-            Random random = new Random();
-            StringBuilder result = new StringBuilder();
+            EmbedBuilder eb = createBaseEmbed(event, user);
+            eb.addField("- Basic reward", getBasicRewardText(reward), false);
 
-            // Making the embed message
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("WORK");
-            eb.setAuthor(user.getUsername(), null, event.getUser().getAvatarUrl());
-            eb.setDescription("It's time to make money !");
+            reward = applyBuffs(user, reward, eb);
+            reward = applyRandomEvent(reward, eb);
 
-            // Initial reward depending on the path chosen
-            if(event.getComponentId().equalsIgnoreCase("easy")) {
-                minReward = 10;
-                maxReward = 50;
-                cooldown = 1;
-                xpGain = 15;
-            } else if (event.getComponentId().equalsIgnoreCase("medium")) {
-                int chance = random.nextInt(100);
-                if(chance < 40) {
-                    minReward = 50;
-                    maxReward = 100;
-                } else {
-                    minReward = 10;
-                    maxReward = 20;
-                }
-                cooldown = 5;
-                xpGain = 30;
-            } else if (event.getComponentId().equalsIgnoreCase("hard")) {
-                int chance = random.nextInt(100);
-                if(chance < 10) {
-                    minReward = 300;
-                    maxReward = 500;
-                } else {
-                    minReward = 1;
-                    maxReward = 10;
-                }
-                cooldown = 15;
-                xpGain = 50;
-            }
-            reward = userService.work(user, minReward, maxReward);
-            eb.addField("- Basic reward", "You earned **"+(reward != 0 ? reward+"** Onicoins !" : "NOTHING** !!!"), false);
-
-            // Items effects
-            java.util.List<UserBuff> buffs = userBuffRepository.findByUser(user);
-            boolean doubleApplied = false;
-            for (UserBuff buff : buffs) {
-                if (buff.getEffectType().equals("WORK_BOOST_20_PERCENT")) {
-                    if (buff.getExpirationDate() != null && buff.getExpirationDate().isAfter(LocalDateTime.now())) {
-                        reward = (int) Math.round(reward * 1.2);
-                        eb.addField("- Boost 20%", "Your reward has been increased by 20% !", false);
-                    } else {
-                        userBuffRepository.delete(buff);
-                    }
-                }
-                if (buff.getEffectType().equals("RANDOM_BONUS_ON_WORK") && buff.getRemainingUses() > 0) {
-                    if (random.nextInt(100) < 5) {
-                        int bonus = 100 + random.nextInt(401);
-                        reward += bonus;
-                        eb.addField("- Bonus aléatoire", "You have earned a bonus of "+bonus+" Onicoins !", false);
-                    }
-                    buff.setRemainingUses(buff.getRemainingUses() - 1);
-                    if (buff.getRemainingUses() <= 0) {
-                        userBuffRepository.delete(buff);
-                    } else {
-                        userBuffRepository.save(buff);
-                    }
-                }
-                if (!doubleApplied && buff.getEffectType().equals("DOUBLE_WORK_REWARD")) {
-                    reward *= 2;
-                    eb.addField("- Double Reward", "Your reward has been doubled !", false);
-                    userBuffRepository.delete(buff);
-                    doubleApplied = true;
-                }
-            }
-
-            // Random Event
-            RandomEvent randomEvent = randomEventService.getRandomEvent();
-            if(randomEvent != null){
-                switch (randomEvent.getType()){
-                    case "BONUS":
-                        reward += randomEvent.getValue();
-                        break;
-                    case "MALUS":
-                        reward = reward - randomEvent.getValue();
-                        break;
-                    case "TREASURE":
-                        reward = reward * randomEvent.getValue();
-                        break;
-                    case "ROBBERY":
-                        if(reward != 0)
-                            reward = reward / randomEvent.getValue();
-                        break;
-                    case "KOSEN":
-                        reward = Math.negateExact(user.getBalance());
-                        break;
-                    default:
-                        break;
-                }
-                eb.addField("- Random Event", randomEvent.getDescription(), false);
-            }
-
-            // Add xp and manage level up
             levelService.addXp(user, xpGain);
+            appendFinalResult(eb, reward, xpGain, user);
 
-            if(reward > 0) {
-                result.append("🔥 You worked hard and earned **").append(reward).append("** Onicoins !\n");
-            } else if(reward == 0){
-                result.append("💀 Bad luck! You earned **NOTHING**...\n");
-            } else {
-                result.append("💀 Bad luck! You lost **").append(Math.abs(reward)).append("** Onicoins...\n");
-            }
-            result.append("✨ You gained **").append(xpGain).append(" XP**.\n");
-            result.append("📊 Level: ").append(user.getLevel()).append(" (").append(user.getXp())
-                    .append("/").append(levelService.xpToNextLevel(user.getLevel())).append(" XP)");
-            eb.addField("Result", result.toString(), false);
-
-            // Update user
             userService.updateBalanceAndCooldown(user, reward, cooldown);
-
             event.getChannel().sendMessageEmbeds(eb.build()).queue();
+
         } catch (IllegalStateException e) {
             event.reply("❌ You are still on cooldown !").setEphemeral(true).queue();
         }
+    }
+
+    private int[] getWorkParameters(String difficulty) {
+        return switch (difficulty.toLowerCase()) {
+            case "easy" -> new int[]{1, 10, 50, 15}; // cooldown, min, max, xp
+            case "medium" -> (random.nextInt(100) < 40) ? new int[]{5, 50, 100, 30} : new int[]{5, 10, 20, 30};
+            case "hard" -> (random.nextInt(100) < 10) ? new int[]{15, 300, 500, 50} : new int[]{15, 1, 10, 50};
+            default -> throw new IllegalStateException("Invalid difficulty");
+        };
+    }
+
+    private EmbedBuilder createBaseEmbed(ButtonInteractionEvent event, User user) {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("WORK");
+        eb.setAuthor(user.getUsername(), null, event.getUser().getAvatarUrl());
+        eb.setDescription("It's time to make money !");
+        eb.setColor(Color.RED);
+        return eb;
+    }
+
+    private String getBasicRewardText(int reward) {
+        return "You earned **" + (reward != 0 ? reward + "** Onicoins !" : "NOTHING** !!!");
+    }
+
+    private int applyBuffs(User user, int reward, EmbedBuilder eb) {
+        List<UserBuff> buffs = userBuffRepository.findByUser(user);
+        boolean doubleApplied = false;
+
+        for (UserBuff buff : buffs) {
+            reward = applySingleBuff(buff, reward, eb, random);
+            if (buff.getEffectType().equals("DOUBLE_WORK_REWARD") && !doubleApplied) {
+                doubleApplied = true;
+            }
+        }
+        return reward;
+    }
+
+    private int applySingleBuff(UserBuff buff, int reward, EmbedBuilder eb, Random random) {
+        return switch (buff.getEffectType()) {
+            case "WORK_BOOST_20_PERCENT" -> applyWorkBoost(buff, reward, eb);
+            case "RANDOM_BONUS_ON_WORK" -> applyRandomBonus(buff, reward, eb, random);
+            case "DOUBLE_WORK_REWARD" -> applyDoubleReward(buff, reward, eb);
+            default -> reward;
+        };
+    }
+
+    private int applyWorkBoost(UserBuff buff, int reward, EmbedBuilder eb) {
+        if (buff.getExpirationDate() != null && buff.getExpirationDate().isAfter(LocalDateTime.now())) {
+            eb.addField("- Boost 20%", "Your reward has been increased by 20% !", false);
+            return (int) Math.round(reward * 1.2);
+        }
+        userBuffRepository.delete(buff);
+        return reward;
+    }
+
+    private int applyRandomBonus(UserBuff buff, int reward, EmbedBuilder eb, Random random) {
+        if (buff.getRemainingUses() > 0) {
+            if (random.nextInt(100) < 5) {
+                int bonus = 100 + random.nextInt(401);
+                reward += bonus;
+                eb.addField("- Random Bonus", "You gained " + bonus + " Onicoins!", false);
+            }
+            updateBuffUsage(buff);
+        }
+        return reward;
+    }
+
+    private void updateBuffUsage(UserBuff buff) {
+        buff.setRemainingUses(buff.getRemainingUses() - 1);
+        if (buff.getRemainingUses() <= 0) userBuffRepository.delete(buff);
+        else userBuffRepository.save(buff);
+    }
+
+    private int applyDoubleReward(UserBuff buff, int reward, EmbedBuilder eb) {
+        eb.addField("- Double Reward", "Your reward has been doubled !", false);
+        userBuffRepository.delete(buff);
+        return reward * 2;
+    }
+
+    private int applyRandomEvent(int reward, EmbedBuilder eb) {
+        RandomEvent event = randomEventService.getRandomEvent();
+        if (event == null) return reward;
+
+        switch (event.getType()) {
+            case "BONUS": reward += event.getValue(); break;
+            case "MALUS": reward -= event.getValue(); break;
+            case "TREASURE": reward *= event.getValue(); break;
+            case "ROBBERY": reward = reward != 0 ? reward / event.getValue() : reward; break;
+            case "KOSEN": reward = -Math.abs(reward); break;
+            default: return reward;
+        }
+        eb.addField("- Random Event", event.getDescription(), false);
+        return reward;
+    }
+
+    private void appendFinalResult(EmbedBuilder eb, int reward, int xpGain, User user) {
+        StringBuilder result = new StringBuilder();
+        if (reward > 0) result.append("🔥 You earned **").append(reward).append("** Onicoins!\n");
+        else if (reward == 0) result.append("💀 You earned **NOTHING**...\n");
+        else result.append("💀 You lost **").append(Math.abs(reward)).append("** Onicoins...\n");
+
+        result.append("✨ You gained **").append(xpGain).append(" XP**.\n");
+        result.append("📊 Level: ").append(user.getLevel()).append(" (")
+                .append(user.getXp()).append("/").append(levelService.xpToNextLevel(user.getLevel())).append(" XP)");
+
+        eb.addField("Result", result.toString(), false);
     }
 }

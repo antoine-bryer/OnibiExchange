@@ -39,5 +39,4 @@ public class ProfileCommand extends ListenerAdapter {
             event.replyEmbeds(eb.build()).queue();
         }
     }
-
 }

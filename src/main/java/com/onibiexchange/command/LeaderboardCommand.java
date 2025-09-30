@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.List;
 
 @Component
@@ -26,6 +27,7 @@ public class LeaderboardCommand extends ListenerAdapter {
             eb.setTitle("LEADERBOARD");
             eb.setAuthor(event.getUser().getName(), null, event.getUser().getAvatarUrl());
             eb.setDescription("Top 10 Onicoin stacker");
+            eb.setColor(Color.MAGENTA);
 
             if(leaderboard != null){
                 StringBuilder leaderboardString = new StringBuilder();
@@ -43,5 +45,4 @@ public class LeaderboardCommand extends ListenerAdapter {
             event.replyEmbeds(eb.build()).queue();
         }
     }
-
 }

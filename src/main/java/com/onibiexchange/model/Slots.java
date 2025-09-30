@@ -14,12 +14,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class Slots implements Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
     private int jackpot;
-
 }
