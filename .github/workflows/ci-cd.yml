@@ -62,13 +62,14 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: DISCORD_TOKEN
+          envs: DISCORD_TOKEN,LOTTERY_CHANNEL_ID
           script: |
             cd /home/ubuntu/onibiexchange/onibiexchange
             git pull origin master
 
             cd /home/ubuntu/onibiexchange
             export DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+            export LOTTERY_CHANNEL_ID=${{ secrets.LOTTERY_CHANNEL_ID }}
 
             docker compose down
             docker compose pull
